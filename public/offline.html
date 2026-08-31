@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AsteRisk | Connection Interrupted</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;600;700&display=swap');
+
+        :root {
+            --safety-amber: #f59e0b;
+            --emergency-red: #ef4444;
+            --glass-bg: rgba(15, 15, 15, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background-color: #050505;
+            font-family: 'Urbanist', sans-serif;
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 1. BACKGROUND REFRACTION */
+        .bg-blob {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: 0;
+            opacity: 0.15;
+            animation: drift 20s infinite alternate ease-in-out;
+        }
+
+        .blob-1 { top: -10%; right: -5%; background: var(--safety-amber); }
+        .blob-2 { bottom: -10%; left: -5%; background: var(--emergency-red); animation-delay: -5s; }
+
+        @keyframes drift {
+            from { transform: translate(0, 0) scale(1); }
+            to { transform: translate(50px, 50px) scale(1.1); }
+        }
+
+        /* 2. INDUSTRIAL GLASS PANEL */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            border-radius: 48px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 400px;
+            padding: 56px 32px 40px;
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 3. SAFETY ANIMATIONS */
+        .pulse-amber {
+            animation: amber-strobe 2s infinite ease-in-out;
+        }
+
+        @keyframes amber-strobe {
+            0%, 100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.2); border-color: rgba(245, 158, 11, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(245, 158, 11, 0.5); border-color: rgba(245, 158, 11, 0.8); }
+        }
+
+        .offline-icon-container {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.4);
+            border: 2px solid rgba(245, 158, 11, 0.2);
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .alert-dot {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 14px;
+            height: 14px;
+            background: var(--safety-amber);
+            border-radius: 50%;
+            border: 2px solid #000;
+        }
+
+        /* 4. TYPOGRAPHY */
+        .node-tag {
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 12px;
+        }
+
+        .description {
+            font-size: 15px;
+            color: rgba(255,255,255,0.5);
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+
+        /* 5. INTERNAL FOOTER */
+        .internal-footer {
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            width: 100%;
+            font-size: 9px;
+            color: rgba(255,255,255,0.25);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .retry-button {
+            background: white;
+            color: black;
+            padding: 14px 28px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .retry-button:hover {
+            transform: translateY(-2px);
+            background: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Refraction Blobs -->
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
+
+    <!-- Main Container -->
+    <div class="glass-panel pulse-amber">
+        <span class="node-tag">Protocol: Offline</span>
+        
+        <div class="offline-icon-container">
+            <i data-lucide="wifi-off" class="text-amber-500 w-10 h-10"></i>
+            <div class="alert-dot animate-pulse"></div>
+        </div>
+
+        <h1>Connection Lost</h1>
+        <p class="description">
+            Vigil Cloud synchronization has paused. <br>
+            Please verify your network configuration to restore the handshake for <strong>Node VGL-043</strong>.
+        </p>
+
+        <button onclick="window.location.reload()" class="retry-button">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+            Restore Handshake
+        </button>
+
+        <!-- Footer inside the div -->
+        <div class="internal-footer">
+            Terra LLC. 2026 | AsteRISK Home 1.0.1
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Optional: Listen for online event to auto-refresh
+        window.addEventListener('online', () => {
+            console.log('Handshake restorable. Reconnecting...');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
