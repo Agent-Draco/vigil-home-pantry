@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { forwardRef, useEffect, useMemo, useState } from "react";
 import {
   ShieldCheck,
   Activity,
@@ -21,7 +21,7 @@ interface SplashScreenProps {
 
 type BootLine = { text: string; type?: "amber" | "green"; stage: number };
 
-export const SplashScreen = ({ onComplete, durationMs = 7000 }: SplashScreenProps) => {
+export const SplashScreen = forwardRef<HTMLDivElement, SplashScreenProps>(({ onComplete, durationMs = 7000 }, ref) => {
   const [stage, setStage] = useState(0);
   const [progress, setProgress] = useState(0);
   const [visibleLines, setVisibleLines] = useState<BootLine[]>([]);
@@ -88,6 +88,7 @@ export const SplashScreen = ({ onComplete, durationMs = 7000 }: SplashScreenProp
 
   return (
     <div
+      ref={ref}
       className={`fixed inset-0 z-50 transition-opacity duration-500 ${
         isComplete ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
@@ -364,4 +365,6 @@ export const SplashScreen = ({ onComplete, durationMs = 7000 }: SplashScreenProp
       `}</style>
     </div>
   );
-};
+});
+
+SplashScreen.displayName = "SplashScreen";

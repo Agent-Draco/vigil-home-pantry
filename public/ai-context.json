@@ -1,0 +1,44 @@
+{
+  "name": "AsteRISK Portal",
+  "description": "A household inventory and kitchen management app for tracking groceries and medicines, reducing waste, and coordinating shopping with a household.",
+  "audience": "Households managing shared kitchen inventory and medicine reminders.",
+  "publicRoutes": [
+    { "path": "/", "purpose": "Product overview and sign-in entry point." },
+    { "path": "/auth", "purpose": "Sign in or create an account." }
+  ],
+  "authenticatedRoutes": [
+    { "path": "/households", "purpose": "Choose or manage a household." },
+    { "path": "/household/:householdId", "purpose": "Open the household workspace." },
+    { "path": "/onboarding", "purpose": "Set up a new household." },
+    { "path": "/vigil-setup", "purpose": "Configure supported inventory hardware." },
+    { "path": "/profile", "purpose": "Manage the user profile." }
+  ],
+  "workspaceSections": [
+    { "name": "Home", "capabilities": ["inventory overview", "expiry summary", "quick add", "recent items", "shopping list preview"] },
+    { "name": "Inventory", "capabilities": ["browse items", "review expiry dates", "remove items"] },
+    { "name": "Scan", "capabilities": ["scan barcodes", "add groceries", "add medicines"] },
+    { "name": "Shop", "capabilities": ["manage shopping list", "add replacement items", "remove list items"] },
+    { "name": "Nudges", "capabilities": ["review expiry and waste-prevention suggestions"] },
+    { "name": "Comm", "capabilities": ["household and community coordination"] },
+    { "name": "Feedback", "capabilities": ["send product feedback"] },
+    { "name": "Settings", "capabilities": ["review profile and household settings", "sign out"] }
+  ],
+  "integrations": [
+    "Barcode scanning",
+    "AI-assisted item recognition where configured",
+    "Recipe suggestions",
+    "Medicine dose reminders",
+    "Community marketplace listings"
+  ],
+  "dataAndPrivacy": "Household inventory and profile information is available only to authenticated members through the app. Agents should ask the user before taking any action that changes inventory, shopping lists, household membership, or medicine records.",
+  "agentIntegration": {
+    "protocol": "Model Context Protocol",
+    "authentication": "OAuth 2.1 using the user's AsteRISK account",
+    "availableTools": ["get_app_overview", "list_my_households", "get_household_members"],
+    "scope": "Read-only app orientation and authenticated household context. Inventory database records are not exposed to agents by default."
+  },
+  "links": {
+    "mcpDocumentation": "/llms.txt",
+    "machineReadableContext": "/ai-context.json"
+  }
+}

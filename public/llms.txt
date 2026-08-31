@@ -1,0 +1,28 @@
+# AsteRISK Portal
+
+## What this is
+
+AsteRISK Portal is a household inventory and kitchen management app. It helps people track groceries and medicines, notice expiry dates, coordinate shopping, and reduce food waste.
+
+## Main experience
+
+After signing in, a user chooses a household and opens its workspace. The workspace has Home, Inventory, Scan, Shop, Nudges, Comm, Feedback, and Settings sections.
+
+- Home: overview counts, quick-add presets, shopping list preview, and recent items.
+- Inventory: inspect and manage household items.
+- Scan: add grocery or medicine records using barcode scanning or supported recognition.
+- Shop: manage the household shopping list.
+- Nudges: review expiry and waste-prevention suggestions.
+- Comm: coordinate with household members and community listings.
+- Feedback: send product feedback.
+- Settings: profile, household settings, and sign out.
+
+## Agent access
+
+The app exposes an authenticated Model Context Protocol server. Agents connect using OAuth 2.1 and act as the signed-in user. The initial read-only tools are `get_app_overview`, `list_my_households`, and `get_household_members`.
+
+Agents should not assume that a user's inventory or medicine data is available through MCP. The agent must ask before any future tool that would mutate inventory, shopping lists, household membership, or medicine records.
+
+## Machine-readable context
+
+Use `/ai-context.json` for routes, capabilities, data boundaries, and the MCP tool catalog.

@@ -254,6 +254,8 @@ const Index = () => {
         householdName={currentHousehold.name}
         notificationCount={notificationCount}
         onBackToHouseholds={households.length > 1 ? () => navigate("/households") : undefined}
+        onNotifications={() => setActiveTab("nudges")}
+        onAdd={() => setActiveTab("scan")}
       />
 
       <MedicineDoseReminder

@@ -1,20 +1,28 @@
 import { motion } from "framer-motion";
 import { Bell, Plus, ArrowLeft } from "lucide-react";
 import desmoLogo from "@/assets/asterisk.png";
+import { Button } from "@/components/ui/button";
 
 interface HeaderProps {
   userName?: string;
   householdName?: string;
   notificationCount?: number;
   onBackToHouseholds?: () => void;
+  onNotifications?: () => void;
+  onAdd?: () => void;
 }
 
 export const Header = ({ 
   userName = "Guest", 
   householdName = "My Kitchen",
   notificationCount = 0,
-  onBackToHouseholds
+  onBackToHouseholds,
+  onNotifications,
+  onAdd,
 }: HeaderProps) => {
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+
   return (
     <motion.header
       initial={{ y: -20, opacity: 0 }}
@@ -49,7 +57,7 @@ export const Header = ({
               transition={{ delay: 0.3 }}
               className="text-sm text-muted-foreground"
             >
-              Good morning
+              {greeting}
             </motion.p>
             <motion.h1
               initial={{ opacity: 0, x: -10 }}
@@ -63,9 +71,13 @@ export const Header = ({
         </div>
         
         <div className="flex items-center gap-3">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={onNotifications}
+            aria-label="Open nudges"
+            title="Open nudges"
             className="glass-button relative w-10 h-10 rounded-full flex items-center justify-center"
           >
             <Bell className="w-5 h-5 text-foreground" />
@@ -78,15 +90,19 @@ export const Header = ({
                 {notificationCount}
               </motion.span>
             )}
-          </motion.button>
+          </Button>
           
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <Button
+            type="button"
+            variant="default"
+            size="icon"
+            onClick={onAdd}
+            aria-label="Scan and add an item"
+            title="Scan and add an item"
             className="glass-button w-10 h-10 rounded-full flex items-center justify-center bg-primary text-primary-foreground"
           >
             <Plus className="w-5 h-5" />
-          </motion.button>
+          </Button>
         </div>
       </div>
     </motion.header>
