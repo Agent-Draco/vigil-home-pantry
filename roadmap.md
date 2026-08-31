@@ -1,0 +1,4 @@
+- [x] Fix confirmed dashboard interaction and rendering issues.
+- [x] Publish machine-readable app context for AI agents.
+- [x] Add protected, read-only MCP tools and generated catalog.
+- [ ] Publish the app to activate the MCP endpoint.
