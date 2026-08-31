@@ -26,7 +26,6 @@ export const StatsCard = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay, ease: "easeOut" }}
-      whileHover={{ scale: 1.02, y: -2 }}
       className={cn(
         "glass-card p-5 flex flex-col gap-3",
         variant === "warning" && "border-warning/30",

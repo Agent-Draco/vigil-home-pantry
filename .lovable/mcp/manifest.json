@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "sdk_version": "0.28.0",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://gvdmqynngjdhrugufamp.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "remix-of-asterisk-portal",
+      "version": "0.1.0",
+      "title": "Remix of AsteRISK - Portal"
+    },
+    "tools": [
+      {
+        "name": "get_app_overview",
+        "title": "Get app overview",
+        "description": "Describe AsteRISK Portal's capabilities, routes, and agent data boundaries.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_my_households",
+        "title": "List my households",
+        "description": "List the households available to the signed-in AsteRISK user.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_household_members",
+        "title": "Get household members",
+        "description": "List the members of a household the signed-in user belongs to.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "household_id": {
+              "type": "string",
+              "description": "The household id returned by list_my_households."
+            }
+          },
+          "required": [
+            "household_id"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

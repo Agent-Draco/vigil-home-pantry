@@ -52,7 +52,7 @@ export const GlassNav = ({ activeTab, onTabChange }: GlassNavProps) => {
               >
                 {isActive && (
                   <motion.div
-                    layoutId="activeTab"
+                    layoutId="activeTab-primary"
                     className="absolute inset-0 bg-primary/10 rounded-xl"
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                   />
@@ -85,7 +85,7 @@ export const GlassNav = ({ activeTab, onTabChange }: GlassNavProps) => {
               >
                 {isActive && (
                   <motion.div
-                    layoutId="activeTab"
+                    layoutId="activeTab-secondary"
                     className="absolute inset-0 bg-primary/10 rounded-xl"
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                   />

@@ -60,8 +60,6 @@ export const HomeView = ({
             title="Total Items"
             value={inventory.length}
             icon={Package}
-            trend="up"
-            trendValue="3"
             delay={0}
           />
           <StatsCard
