@@ -17,6 +17,7 @@ const Onboarding = lazy(() => import("./pages/Onboarding"));
 const HouseholdSelector = lazy(() => import("./pages/HouseholdSelector"));
 const VigilSetup = lazy(() => import("./pages/VigilSetup"));
 const ProfileManagement = lazy(() => import("./pages/ProfileManagement"));
+const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -102,6 +103,7 @@ const App = () => {
                 {/* Keep /dashboard for backward compat - redirects to /households */}
                 <Route path="/dashboard" element={<HouseholdSelector />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
                 <Route path="/onboarding" element={<Onboarding />} />
                 <Route path="/vigil-setup" element={<VigilSetup />} />
                 <Route path="/profile" element={<ProfileManagement />} />

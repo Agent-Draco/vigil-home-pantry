@@ -8,7 +8,6 @@ import { GlassCard } from "@/components/GlassCard";
 type AuthorizationDetails = {
   client?: { name?: string; uri?: string };
   redirect_url?: string;
-  redirect_to?: string;
 };
 
 type OAuthApi = {
@@ -54,7 +53,7 @@ const OAuthConsent = () => {
         return;
       }
 
-      const immediateRedirect = data?.redirect_url ?? data?.redirect_to;
+      const immediateRedirect = data?.redirect_url;
       if (immediateRedirect && !data?.client) {
         window.location.assign(immediateRedirect);
         return;
@@ -81,7 +80,7 @@ const OAuthConsent = () => {
       return;
     }
 
-    const redirect = result.data?.redirect_url ?? result.data?.redirect_to;
+    const redirect = result.data?.redirect_url;
     if (!redirect) {
       setBusy(false);
       setError("The authorization server did not return a destination.");
