@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import type { FormEvent } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { GlassCard } from "@/components/GlassCard";
@@ -15,6 +15,17 @@ import { z } from "zod";
 
 const emailSchema = z.string().email("Please enter a valid email");
 const passwordSchema = z.string().min(6, "Password must be at least 6 characters");
+
+const getSafeNextPath = (value: string | null) => {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return null;
+  try {
+    const target = new URL(value, window.location.origin);
+    if (target.origin !== window.location.origin) return null;
+    return `${target.pathname}${target.search}${target.hash}`;
+  } catch {
+    return null;
+  }
+};
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -31,6 +42,9 @@ const Auth = () => {
     displayName?: string;
   }>({});
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const nextPath = getSafeNextPath(params.get("next"));
+  const authReturnUrl = `${window.location.origin}/auth${nextPath ? `?next=${encodeURIComponent(nextPath)}` : ""}`;
   const {
     toast
   } = useToast();
@@ -42,7 +56,7 @@ const Auth = () => {
       }
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        navigate("/dashboard", {
+        navigate(nextPath || "/dashboard", {
           replace: true
         });
       }
@@ -53,13 +67,13 @@ const Auth = () => {
       }
     }) => {
       if (session) {
-        navigate("/dashboard", {
+        navigate(nextPath || "/dashboard", {
           replace: true
         });
       }
     });
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, nextPath]);
 
   // Load remembered email on mount
   useEffect(() => {
@@ -106,7 +120,7 @@ const Auth = () => {
           localStorage.removeItem("vigil_remember_email");
         }
       } else {
-        const redirectUrl = `${window.location.origin}/`;
+        const redirectUrl = authReturnUrl;
         const {
           error
         } = await supabase.auth.signUp({
@@ -151,7 +165,7 @@ const Auth = () => {
       localStorage.setItem("oauth_timestamp", Date.now().toString());
 
       const { error } = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+        redirect_uri: authReturnUrl,
         options: {
           queryParams: {
             state: state,
@@ -178,7 +192,7 @@ const Auth = () => {
       localStorage.setItem("oauth_timestamp", Date.now().toString());
 
       const { error } = await lovable.auth.signInWithOAuth("apple", {
-        redirect_uri: window.location.origin,
+        redirect_uri: authReturnUrl,
         options: {
           queryParams: {
             state: state,
