@@ -1,4 +1,4 @@
-import { Suspense, lazy, useState, useEffect, useCallback } from "react";
+import { Suspense, lazy, useState, useEffect, useCallback, forwardRef } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -29,7 +29,7 @@ const PageLoader = () => (
   </div>
 );
 
-const App = () => {
+const App = forwardRef<HTMLDivElement, Record<string, never>>((_props, _ref) => {
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
@@ -85,7 +85,7 @@ const App = () => {
   }, []);
 
   if (showSplash) {
-    return <SplashScreen ref={undefined} onComplete={handleSplashComplete} />;
+    return <SplashScreen onComplete={handleSplashComplete} />;
   }
 
   return (
@@ -115,6 +115,8 @@ const App = () => {
       </ThemeProvider>
     </QueryClientProvider>
   );
-};
+});
+
+App.displayName = "App";
 
 export default App;
