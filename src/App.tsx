@@ -85,7 +85,7 @@ const App = () => {
   }, []);
 
   if (showSplash) {
-    return <SplashScreen onComplete={handleSplashComplete} />;
+    return <SplashScreen ref={undefined} onComplete={handleSplashComplete} />;
   }
 
   return (
