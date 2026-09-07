@@ -14,6 +14,104 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_plan_codes: {
+        Row: {
+          code_hash: string
+          created_at: string
+          created_by: string
+          expires_at: string | null
+          id: string
+          max_redemptions: number
+          plan_id: string
+          redeemed_count: number
+        }
+        Insert: {
+          code_hash: string
+          created_at?: string
+          created_by: string
+          expires_at?: string | null
+          id?: string
+          max_redemptions?: number
+          plan_id: string
+          redeemed_count?: number
+        }
+        Update: {
+          code_hash?: string
+          created_at?: string
+          created_by?: string
+          expires_at?: string | null
+          id?: string
+          max_redemptions?: number
+          plan_id?: string
+          redeemed_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_plan_codes_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "ai_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_plans: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string
+          id: string
+          monthly_nudge_limit: number
+          monthly_scan_limit: number
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          id?: string
+          monthly_nudge_limit?: number
+          monthly_scan_limit?: number
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          id?: string
+          monthly_nudge_limit?: number
+          monthly_scan_limit?: number
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ai_usage: {
+        Row: {
+          nudge_count: number
+          period_start: string
+          scan_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          nudge_count?: number
+          period_start: string
+          scan_count?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          nudge_count?: number
+          period_start?: string
+          scan_count?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       feedback: {
         Row: {
           created_at: string
@@ -275,19 +373,118 @@ export type Database = {
           },
         ]
       }
+      user_ai_plans: {
+        Row: {
+          assigned_by: string | null
+          expires_at: string | null
+          plan_id: string
+          source: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_by?: string | null
+          expires_at?: string | null
+          plan_id: string
+          source?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_by?: string | null
+          expires_at?: string | null
+          plan_id?: string
+          source?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_ai_plans_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "ai_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      admin_create_ai_code: {
+        Args: {
+          _code: string
+          _expires_at: string
+          _max_redemptions: number
+          _plan_id: string
+        }
+        Returns: Json
+      }
+      admin_create_ai_plan: {
+        Args: {
+          _description: string
+          _name: string
+          _nudge_limit: number
+          _scan_limit: number
+        }
+        Returns: {
+          active: boolean
+          created_at: string
+          description: string
+          id: string
+          monthly_nudge_limit: number
+          monthly_scan_limit: number
+          name: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "ai_plans"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      consume_ai_usage: { Args: { _feature: string }; Returns: Json }
+      get_ai_plan_status: { Args: never; Returns: Json }
       get_user_household_id: { Args: never; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       is_member_of_household: {
         Args: { _household_id: string }
         Returns: boolean
       }
+      redeem_ai_plan_code: { Args: { _code: string }; Returns: Json }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -414,6 +611,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const
