@@ -6,12 +6,19 @@ import { cn } from "@/lib/utils";
 import { generateNudges } from "@/lib/rulesEngine";
 import { RecipeDrawer } from "@/components/RecipeDrawer";
 
+interface NudgeInventoryItem {
+  id: string;
+  name: string;
+  category?: string | null;
+  is_out?: boolean;
+}
+
 interface NudgeFeedProps {
-  inventory: any[];
+  inventory: NudgeInventoryItem[];
 }
 
 export const NudgeFeed = ({ inventory }: NudgeFeedProps) => {
-  const [nudges, setNudges] = useState([]);
+  const [nudges, setNudges] = useState<ReturnType<typeof generateNudges>>([]);
   const [isRecipeOpen, setIsRecipeOpen] = useState(false);
   const [recipeIngredient, setRecipeIngredient] = useState("");
 

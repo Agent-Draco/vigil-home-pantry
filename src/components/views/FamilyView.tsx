@@ -89,8 +89,9 @@ export const FamilyView = ({ household, currentUserId }: FamilyViewProps) => {
               toast({ title: "Left household", description: `You left ${household.name}` });
               await refetch();
               navigate("/households");
-            } catch (err: any) {
-              toast({ title: "Error", description: err.message, variant: "destructive" });
+            } catch (err: unknown) {
+              const message = err instanceof Error ? err.message : "Failed to leave household.";
+              toast({ title: "Error", description: message, variant: "destructive" });
             }
           }}
           className="py-3 px-4 rounded-xl bg-destructive/10 text-destructive font-semibold flex items-center justify-center gap-2"

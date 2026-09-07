@@ -45,7 +45,7 @@ interface ScanViewProps {
     medicine_dose_times?: string[];
     medicine_timezone?: string;
     medicine_next_dose_at?: string;
-  }) => Promise<any>;
+  }) => Promise<unknown>;
 }
 
 export const ScanView = ({ onAddItem }: ScanViewProps) => {
@@ -142,7 +142,7 @@ export const ScanView = ({ onAddItem }: ScanViewProps) => {
     return { exp, mfg };
   };
 
-  const safeIsoDate = (raw: any) => {
+  const safeIsoDate = (raw: unknown) => {
     if (!raw || typeof raw !== "string") return undefined;
     const s = raw.trim();
     if (!s) return undefined;
@@ -440,17 +440,18 @@ export const ScanView = ({ onAddItem }: ScanViewProps) => {
       });
 
       setCameraError(null);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Camera access error:", error);
 
       let errorMessage = "Camera access failed. Please try again.";
-      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+      const cameraErrorName = error instanceof Error ? error.name : "";
+      if (cameraErrorName === 'NotAllowedError' || cameraErrorName === 'PermissionDeniedError') {
         errorMessage = "Camera permission denied. Please allow camera access in your browser settings.";
-      } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+      } else if (cameraErrorName === 'NotFoundError' || cameraErrorName === 'DevicesNotFoundError') {
         errorMessage = "No camera found on this device.";
-      } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+      } else if (cameraErrorName === 'NotReadableError' || cameraErrorName === 'TrackStartError') {
         errorMessage = "Camera is in use by another application.";
-      } else if (error.name === 'SecurityError') {
+      } else if (cameraErrorName === 'SecurityError') {
         errorMessage = "Camera access blocked. Please use HTTPS.";
       }
 

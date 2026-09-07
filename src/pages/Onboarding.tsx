@@ -58,7 +58,7 @@ const Onboarding = () => {
       // Create household
       const { data: household, error: householdError } = await supabase
         .from("households")
-        .insert({ name: householdName.trim(), creator_id: user.id } as any)
+        .insert({ name: householdName.trim(), creator_id: user.id })
         .select()
         .single();
 
@@ -73,7 +73,7 @@ const Onboarding = () => {
       // Add to household_members join table
       await supabase
         .from("household_members")
-        .insert({ user_id: user.id, household_id: household.id } as any);
+        .insert({ user_id: user.id, household_id: household.id });
 
       toast({
         title: "Household created!",
@@ -81,10 +81,11 @@ const Onboarding = () => {
       });
 
       navigate("/households", { replace: true });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to create household.";
       toast({
         title: "Error",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -130,7 +131,7 @@ const Onboarding = () => {
       // Add to household_members join table
       await supabase
         .from("household_members")
-        .insert({ user_id: user.id, household_id: household.id } as any);
+        .insert({ user_id: user.id, household_id: household.id });
 
       toast({
         title: "Joined household!",
@@ -138,10 +139,11 @@ const Onboarding = () => {
       });
 
       navigate("/households", { replace: true });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to join household.";
       toast({
         title: "Error",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
     } finally {

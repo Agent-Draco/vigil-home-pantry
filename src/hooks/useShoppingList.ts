@@ -49,7 +49,7 @@ export const useShoppingList = (householdId: string | null) => {
 
       if (error) throw error;
       setItems(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching shopping list:", error);
     } finally {
       setLoading(false);
@@ -120,10 +120,11 @@ export const useShoppingList = (householdId: string | null) => {
       });
 
       return data as ShoppingListItem;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to add shopping item.";
       toast({
         title: "Error",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
       return null;
@@ -148,10 +149,11 @@ export const useShoppingList = (householdId: string | null) => {
       });
 
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to remove item.";
       toast({
         title: "Error",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
       return false;
@@ -167,10 +169,11 @@ export const useShoppingList = (householdId: string | null) => {
 
       if (error) throw error;
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to update item.";
       toast({
         title: "Error",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
       return false;

@@ -3,8 +3,14 @@ import { motion } from "framer-motion";
 import { NudgeFeed } from "@/components/NudgeFeed";
 import { SpoonSureProfile } from "@/components/SpoonSureProfile";
 
+interface NudgesInventoryItem {
+  id: string;
+  name: string;
+  is_out?: boolean;
+}
+
 interface NudgesViewProps {
-  inventory: any[];
+  inventory: NudgesInventoryItem[];
 }
 
 export const NudgesView = ({ inventory }: NudgesViewProps) => {

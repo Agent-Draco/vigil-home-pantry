@@ -45,10 +45,11 @@ export const useVigilSettings = () => {
       });
 
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to save settings.";
       toast({
         title: "Error saving settings",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
       return null;
@@ -75,7 +76,7 @@ export const useVigilSettings = () => {
       }
 
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching Vigil settings:", error);
       return null;
     } finally {

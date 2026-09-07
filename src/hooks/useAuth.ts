@@ -43,7 +43,7 @@ export const useAuth = () => {
       if (memberError) throw memberError;
 
       if (memberships && memberships.length > 0) {
-        const householdIds = memberships.map((m: any) => m.household_id);
+        const householdIds = memberships.map((m: { household_id: string }) => m.household_id);
         const { data: householdData, error: householdError } = await supabase
           .from("households")
           .select("*")

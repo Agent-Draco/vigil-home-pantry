@@ -56,7 +56,7 @@ describe("useInventory Cleanup Optimization", () => {
     const orderMock = vi.fn().mockResolvedValue({ data: mockItems, error: null });
 
     // Mock the chain
-    (vigilSupabase.from as any).mockImplementation((table: string) => {
+    vi.mocked(vigilSupabase.from).mockImplementation((table: string) => {
       if (table === "inventory_items") {
         return {
           select: vi.fn().mockReturnValue({

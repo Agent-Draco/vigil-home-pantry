@@ -139,11 +139,12 @@ const Auth = () => {
           description: "Welcome to Desmo. Let's set up your kitchen."
         });
       }
-    } catch (error: any) {
-      let message = error.message;
-      if (error.message.includes("User already registered")) {
+    } catch (error: unknown) {
+      const authError = error instanceof Error ? error : new Error("Unable to authenticate.");
+      let message = authError.message;
+      if (authError.message.includes("User already registered")) {
         message = "An account with this email already exists. Please sign in.";
-      } else if (error.message.includes("Invalid login credentials")) {
+      } else if (authError.message.includes("Invalid login credentials")) {
         message = "Incorrect email or password. Please try again.";
       }
       toast({
@@ -173,10 +174,11 @@ const Auth = () => {
         }
       });
       if (error) throw error;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to sign in with Google";
       toast({
         title: "Error",
-        description: error.message || "Failed to sign in with Google",
+        description: message,
         variant: "destructive"
       });
       setSocialLoading(null);
@@ -200,11 +202,12 @@ const Auth = () => {
         }
       });
       if (error) throw error;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to sign in with Apple";
       console.error(error);
       toast({
         title: "Error",
-        description: error.message || "Failed to sign in with Apple",
+        description: message,
         variant: "destructive"
       });
       setSocialLoading(null);

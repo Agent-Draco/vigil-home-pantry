@@ -78,8 +78,10 @@ export async function findRecipesByIngredients(
       throw new Error(`Spoonacular API error: ${response.status}`);
     }
 
-    const payload = (await response.json()) as any;
-    const results: any[] = Array.isArray(payload?.results) ? payload.results : [];
+    const payload = (await response.json()) as {
+      results?: Array<Record<string, unknown>>;
+    };
+    const results = Array.isArray(payload?.results) ? payload.results : [];
     const mapped: Recipe[] = results
       .map((r) => {
         const image: string = typeof r?.image === "string" ? r.image : "";

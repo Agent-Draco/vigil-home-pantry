@@ -61,7 +61,7 @@ const ProfileManagement = () => {
       .select("creator_id")
       .eq("id", household.id)
       .maybeSingle();
-    setHouseholdCreatorId((data as any)?.creator_id || null);
+    setHouseholdCreatorId(data?.creator_id ?? null);
   };
 
   const fetchMergeRequests = async () => {
@@ -95,8 +95,9 @@ const ProfileManagement = () => {
       if (error) throw error;
       await refetch();
       toast({ title: "Name updated", description: "Your display name has been changed." });
-    } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Failed to update name.";
+      toast({ title: "Error", description: message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -113,8 +114,9 @@ const ProfileManagement = () => {
         description: "Check your new email address to confirm the change.",
       });
       setNewEmail("");
-    } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Failed to change email.";
+      toast({ title: "Error", description: message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -167,8 +169,9 @@ const ProfileManagement = () => {
       });
       setMergeInviteCode("");
       await fetchMergeRequests();
-    } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Failed to send merge request.";
+      toast({ title: "Error", description: message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -205,8 +208,9 @@ const ProfileManagement = () => {
       toast({ title: "Households merged!", description: "All members and data have been combined." });
       await refetch();
       await fetchMergeRequests();
-    } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Failed to approve merge request.";
+      toast({ title: "Error", description: message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -222,8 +226,9 @@ const ProfileManagement = () => {
       if (error) throw error;
       toast({ title: "Merge request rejected" });
       await fetchMergeRequests();
-    } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Failed to reject merge request.";
+      toast({ title: "Error", description: message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -256,8 +261,9 @@ const ProfileManagement = () => {
       toast({ title: "Household deleted", description: "You can now create or join a new household." });
       await refetch();
       navigate("/onboarding", { replace: true });
-    } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Failed to delete household.";
+      toast({ title: "Error", description: message, variant: "destructive" });
     } finally {
       setLoading(false);
       setShowDeleteConfirm(false);
@@ -277,8 +283,9 @@ const ProfileManagement = () => {
       toast({ title: "Left household", description: "You can now join or create a new household." });
       await refetch();
       navigate("/onboarding", { replace: true });
-    } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Failed to leave household.";
+      toast({ title: "Error", description: message, variant: "destructive" });
     } finally {
       setLoading(false);
     }

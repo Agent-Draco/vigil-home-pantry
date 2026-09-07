@@ -79,11 +79,18 @@ export interface Nudge {
   itemId: string;
 }
 
-export const generateNudges = (inventory: any[]): Nudge[] => {
+interface NudgeInventoryItem {
+  id: string;
+  name: string;
+  category?: string | null;
+  expiry_date?: string | null;
+}
+
+export const generateNudges = (inventory: NudgeInventoryItem[]): Nudge[] => {
   const nudges: Nudge[] = [];
   const now = new Date();
 
-  inventory.forEach(item => {
+  inventory.forEach((item) => {
     const state = getItemState(item.expiry_date ? new Date(item.expiry_date) : undefined, now);
 
     if (state === 'critical' && item.category?.toLowerCase().includes('food')) {

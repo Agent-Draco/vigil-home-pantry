@@ -29,6 +29,12 @@ const PageLoader = () => (
   </div>
 );
 
+interface MedianAuthPayload {
+  state?: string;
+  access_token?: string;
+  refresh_token?: string;
+}
+
 const App = forwardRef<HTMLDivElement, Record<string, never>>((_props, _ref) => {
   const [showSplash, setShowSplash] = useState(true);
 
@@ -38,7 +44,7 @@ const App = forwardRef<HTMLDivElement, Record<string, never>>((_props, _ref) => 
         console.log("Median Bridge initialized");
       });
 
-      window.MedianBridge.on("authCallback", async (data: any) => {
+      window.MedianBridge.on("authCallback", async (data: MedianAuthPayload) => {
         console.log("OAuth callback received:", data);
 
         const receivedState = data?.state;

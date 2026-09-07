@@ -2,9 +2,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Pill, Clock, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+interface MedicineReminderItem {
+  name: string;
+  medicine_next_dose_at?: string | null;
+  medicine_is_dosaged?: boolean;
+  medicine_dose_amount?: number | null;
+  medicine_dose_unit?: string | null;
+}
+
 interface MedicineDoseReminderProps {
   isVisible: boolean;
-  medicine: any;
+  medicine: MedicineReminderItem | null;
   onTaken: () => void;
   onNotTaken: () => void;
   onDismiss: () => void;

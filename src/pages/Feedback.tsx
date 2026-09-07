@@ -44,10 +44,11 @@ export default function FeedbackPage() {
         setSubmitted(false);
         setFormData({ name: "", email: "", subject: "", message: "" });
       }, 3000);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to submit feedback";
       toast({
         title: "Error",
-        description: error.message || "Failed to submit feedback",
+        description: message,
         variant: "destructive",
       });
     } finally {

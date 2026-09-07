@@ -56,7 +56,7 @@ const Index = () => {
   const { items: inventory, loading: inventoryLoading, addItem, deleteItem, updateItem, decrementItem } = useInventory(effectiveHouseholdId);
   const { items: shoppingList, loading: shoppingListLoading, addItem: addShoppingItem, deleteItem: deleteShoppingItem } = useShoppingList(effectiveHouseholdId);
 
-  const { expiringCount, expiredCount } = useExpiryNotifications(inventory as any, {
+  const { expiringCount, expiredCount } = useExpiryNotifications(inventory, {
     warningDays: 3,
     checkInterval: 300000,
   });
@@ -106,7 +106,8 @@ const Index = () => {
           .order("created_at", { ascending: false })
           .limit(12);
         if (error) throw error;
-        if (!cancelled) setCommListings(((data as any[]) || []) as any);
+        const rows = Array.isArray(data) ? (data as Array<{ id: string; title: string; mode: "s-comm" | "b-comm"; lister_name?: string; quantity?: number; unit?: string | null }>) : [];
+        if (!cancelled) setCommListings(rows);
       } catch {
         if (!cancelled) setCommListings([]);
       }
@@ -166,7 +167,7 @@ const Index = () => {
     if (dueMedicineId) return;
     if (!inventory || inventory.length === 0) return;
     const now = new Date();
-    const due = inventory.find((it: any) => {
+    const due = inventory.find((it) => {
       if (it.is_out || it.item_type !== "medicine" || !it.medicine_is_dosaged || !it.medicine_next_dose_at) return false;
       const next = new Date(it.medicine_next_dose_at);
       if (Number.isNaN(next.getTime()) || next.getTime() > now.getTime()) return false;
@@ -179,7 +180,7 @@ const Index = () => {
     if (due?.id) setDueMedicineId(due.id);
   }, [inventory, dueMedicineId]);
 
-  const dueMedicine = dueMedicineId ? (inventory as any).find((it: any) => it.id === dueMedicineId) : null;
+  const dueMedicine = dueMedicineId ? inventory.find((it) => it.id === dueMedicineId) : null;
   const notificationCount = expiringCount + expiredCount;
 
   if (authLoading) {
@@ -241,13 +242,13 @@ const Index = () => {
           const now = new Date();
           const nextDoseAt = computeNextDoseAt(dueMedicine.medicine_dose_times, now);
           await decrementItem(dueMedicine.id);
-          await updateItem(dueMedicine.id, { medicine_last_taken_at: now.toISOString(), medicine_snooze_until: null, medicine_next_dose_at: nextDoseAt } as any);
+          await updateItem(dueMedicine.id, { medicine_last_taken_at: now.toISOString(), medicine_snooze_until: null, medicine_next_dose_at: nextDoseAt });
           setDueMedicineId(null);
         }}
         onNotTaken={async () => {
           if (!dueMedicine) return;
           const snooze = new Date(); snooze.setHours(snooze.getHours() + 1);
-          await updateItem(dueMedicine.id, { medicine_snooze_until: snooze.toISOString() } as any);
+          await updateItem(dueMedicine.id, { medicine_snooze_until: snooze.toISOString() });
           setDueMedicineId(null);
         }}
         onDismiss={() => setDueMedicineId(null)}

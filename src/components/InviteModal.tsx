@@ -49,21 +49,24 @@ export const InviteModal = ({ isOpen, onClose, householdId, householdName, invit
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
+      const invitationRow = {
+        household_id: householdId,
+        created_by: user.id,
+        code,
+        expires_at: expiresAt.toISOString(),
+      };
+
       const { error } = await supabase
         .from("household_invitations")
-        .insert({
-          household_id: householdId,
-          created_by: user.id,
-          code,
-          expires_at: expiresAt.toISOString(),
-        } as any);
+        .insert(invitationRow);
       if (error) throw error;
 
       setOtpCode(code);
       setOtpExpiry(expiresAt);
       toast({ title: "Code generated", description: "Valid for 10 minutes" });
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to generate invite code.";
+      toast({ title: "Error", description: message, variant: "destructive" });
     } finally {
       setOtpLoading(false);
     }
@@ -87,14 +90,16 @@ export const InviteModal = ({ isOpen, onClose, householdId, householdName, invit
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
+      const invitationRow = {
+        household_id: householdId,
+        created_by: user.id,
+        code,
+        expires_at: expiresAt.toISOString(),
+      };
+
       const { error } = await supabase
         .from("household_invitations")
-        .insert({
-          household_id: householdId,
-          created_by: user.id,
-          code,
-          expires_at: expiresAt.toISOString(),
-        } as any);
+        .insert(invitationRow);
       if (error) throw error;
 
       // For now, copy invite text to clipboard since we don't have email sending
@@ -103,8 +108,9 @@ export const InviteModal = ({ isOpen, onClose, householdId, householdName, invit
 
       toast({ title: "Invite copied!", description: `Share the copied invite text with ${emailTo}` });
       setEmailTo("");
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to send invite.";
+      toast({ title: "Error", description: message, variant: "destructive" });
     } finally {
       setEmailSending(false);
     }

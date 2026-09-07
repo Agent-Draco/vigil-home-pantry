@@ -43,14 +43,14 @@ const HouseholdSelector = () => {
     try {
       const { data: household, error: hErr } = await supabase
         .from("households")
-        .insert({ name: householdName.trim(), creator_id: user.id } as any)
+        .insert({ name: householdName.trim(), creator_id: user.id })
         .select()
         .single();
       if (hErr) throw hErr;
 
       const { error: mErr } = await supabase
         .from("household_members")
-        .insert({ user_id: user.id, household_id: household.id } as any);
+        .insert({ user_id: user.id, household_id: household.id });
       if (mErr) throw mErr;
 
       await supabase
@@ -63,8 +63,9 @@ const HouseholdSelector = () => {
       setHouseholdName("");
       setMode("list");
       navigate(`/household/${household.id}`, { replace: true });
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to create household.";
+      toast({ title: "Error", description: message, variant: "destructive" });
     } finally {
       setSubmitting(false);
     }
@@ -79,7 +80,7 @@ const HouseholdSelector = () => {
       const codeInput = inviteCode.trim().toUpperCase();
 
       // First try permanent invite code
-      let household: any = null;
+      let household: { id: string; name: string; invite_code?: string } | null = null;
       const { data: permHousehold, error: permError } = await supabase
         .from("households")
         .select("id, name, invite_code")
@@ -108,7 +109,7 @@ const HouseholdSelector = () => {
         // Mark as used
         await supabase
           .from("household_invitations")
-          .update({ used: true } as any)
+          .update({ used: true })
           .eq("id", invitation.id);
 
         // Get household details
@@ -137,7 +138,7 @@ const HouseholdSelector = () => {
 
       const { error: mErr } = await supabase
         .from("household_members")
-        .insert({ user_id: user.id, household_id: household.id } as any);
+        .insert({ user_id: user.id, household_id: household.id });
       if (mErr) throw mErr;
 
       await supabase
@@ -150,8 +151,9 @@ const HouseholdSelector = () => {
       setInviteCode("");
       setMode("list");
       navigate(`/household/${household.id}`, { replace: true });
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to join household.";
+      toast({ title: "Error", description: message, variant: "destructive" });
     } finally {
       setSubmitting(false);
     }
@@ -187,8 +189,9 @@ const HouseholdSelector = () => {
 
       toast({ title: "Left household", description: `You left ${householdName}` });
       await refetch();
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to leave household.";
+      toast({ title: "Error", description: message, variant: "destructive" });
     }
   };
 
@@ -203,8 +206,9 @@ const HouseholdSelector = () => {
       toast({ title: "Renamed", description: "Household name updated" });
       setRenamingId(null);
       await refetch();
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to rename household.";
+      toast({ title: "Error", description: message, variant: "destructive" });
     }
   };
 

@@ -55,10 +55,11 @@ export const useInventory = (householdId: string | null) => {
       });
 
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Unable to delete item.";
       toast({
         title: "Error",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
       return false;
@@ -83,10 +84,10 @@ export const useInventory = (householdId: string | null) => {
 
       // Map DB column names to UI-friendly names
       // External DB uses 'uuid' as the primary key while 'id' is often null
-      const mappedItems: InventoryItem[] = (data || []).map((item: any) => ({
-        ...item,
-        id: item.uuid || item.id || item.uuid,
-        mfg_date: item.manufacturing_date ?? null,
+      const mappedItems: InventoryItem[] = (data || []).map((item: Record<string, unknown>) => ({
+        ...(item as Partial<InventoryItem>),
+        id: String((item.uuid ?? item.id) ?? ""),
+        mfg_date: typeof item.manufacturing_date === "string" ? item.manufacturing_date : null,
       }));
 
       setItems(mappedItems);
@@ -243,10 +244,11 @@ export const useInventory = (householdId: string | null) => {
       }
 
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to add item.";
       toast({
         title: "Error",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
       return null;
@@ -269,10 +271,11 @@ export const useInventory = (householdId: string | null) => {
         )
       );
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Unable to add item.";
       toast({
         title: "Error",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
       return false;

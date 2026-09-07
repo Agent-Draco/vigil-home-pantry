@@ -40,7 +40,7 @@ declare module "*.svg" {
 
 interface MedianBridge {
   ready(callback: () => void): void;
-  on(event: string, callback: (data: any) => void): void;
+  on(event: string, callback: (data: Record<string, unknown>) => void): void;
 }
 
 interface Window {

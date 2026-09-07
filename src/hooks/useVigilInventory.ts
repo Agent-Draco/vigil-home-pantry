@@ -23,7 +23,7 @@ export const useVigilInventory = (householdId: string | null) => {
 
       if (error) throw error;
       setItems(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching Vigil inventory:", error);
     } finally {
       setLoading(false);
@@ -88,10 +88,11 @@ export const useVigilInventory = (householdId: string | null) => {
       });
 
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to update status.";
       toast({
         title: "Error",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
       return false;
@@ -130,10 +131,11 @@ export const useVigilInventory = (householdId: string | null) => {
       });
 
       return data as VigilInventoryItem;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to add item.";
       toast({
         title: "Error",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
       return null;
@@ -152,10 +154,11 @@ export const useVigilInventory = (householdId: string | null) => {
       });
 
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to delete item.";
       toast({
         title: "Error",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
       return false;

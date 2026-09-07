@@ -32,7 +32,7 @@ export const useHouseholdMembers = (householdId: string | null) => {
         return;
       }
 
-      const userIds = memberships.map((m: any) => m.user_id);
+      const userIds = memberships.map((m: { user_id: string }) => m.user_id);
       const { data, error } = await supabase
         .from("profiles")
         .select("id, display_name, avatar_url")

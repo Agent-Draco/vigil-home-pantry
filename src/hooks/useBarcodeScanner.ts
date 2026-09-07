@@ -177,18 +177,19 @@ export const useBarcodeScanner = () => {
       }
 
       setIsScanning(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Camera access error:", error);
       setHasPermission(false);
 
+      const cameraErrorName = error instanceof Error ? error.name : "";
       let errorMessage = "Please allow camera access to scan barcodes";
-      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+      if (cameraErrorName === 'NotAllowedError' || cameraErrorName === 'PermissionDeniedError') {
         errorMessage = "Camera permission denied. Please enable camera access in your browser settings and refresh the page.";
-      } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+      } else if (cameraErrorName === 'NotFoundError' || cameraErrorName === 'DevicesNotFoundError') {
         errorMessage = "No camera found on this device.";
-      } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+      } else if (cameraErrorName === 'NotReadableError' || cameraErrorName === 'TrackStartError') {
         errorMessage = "Camera is already in use by another application.";
-      } else if (error.name === 'OverconstrainedError') {
+      } else if (cameraErrorName === 'OverconstrainedError') {
         errorMessage = "Camera constraints not satisfied. Trying fallback...";
         // Try with simpler constraints
         try {
@@ -204,7 +205,7 @@ export const useBarcodeScanner = () => {
         } catch {
           errorMessage = "Could not access camera with any settings.";
         }
-      } else if (error.name === 'SecurityError') {
+      } else if (cameraErrorName === 'SecurityError') {
         errorMessage = "Camera access blocked for security reasons. Use HTTPS.";
       }
 

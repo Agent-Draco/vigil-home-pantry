@@ -13,7 +13,7 @@ interface Household {
 interface CommViewProps {
   household: Household | null;
   currentUserId: string | null;
-  inventory?: any[];
+  inventory?: InventoryItem[];
 }
 
 interface InventoryItem {
@@ -129,7 +129,8 @@ export const CommView = ({ household, currentUserId, inventory = [] }: CommViewP
       // Actually fetch all data without the problematic column, then get mode via RPC or raw
       // Workaround: fetch without select to get all columns - but that triggers the bug
       // Best approach: just fetch all and handle the error, or fetch mode separately
-      setListings(((data as any[]) || []).filter((l: any) => l.mode === targetMode) as Listing[]);
+      const listingRows = Array.isArray(data) ? (data as Listing[]) : [];
+      setListings(listingRows.filter((listing) => listing.mode === targetMode));
     } catch (error) {
       // If explicit columns fail (e.g., some columns don't exist), try minimal fetch
       try {
@@ -139,7 +140,8 @@ export const CommView = ({ household, currentUserId, inventory = [] }: CommViewP
           .eq("status", "active")
           .order("created_at", { ascending: false });
         const targetMode = modeOverride ?? activeMode;
-        setListings(((data as any[]) || []).filter((l: any) => l.mode === targetMode) as Listing[]);
+        const fallbackRows = Array.isArray(data) ? (data as Listing[]) : [];
+        setListings(fallbackRows.filter((listing) => listing.mode === targetMode));
       } catch (e2) {
         console.error("Error fetching listings:", e2);
       }
@@ -177,10 +179,11 @@ export const CommView = ({ household, currentUserId, inventory = [] }: CommViewP
         return;
       }
       // Filter client-side for participant matching
-      const userChats = ((data as any[]) || []).filter(
-        (c: any) => c.participant1_id === currentUserId || c.participant2_id === currentUserId
+      const dbChats = Array.isArray(data) ? (data as Chat[]) : [];
+      const userChats = dbChats.filter(
+        (chat) => chat.participant1_id === currentUserId || chat.participant2_id === currentUserId
       );
-      setChats(userChats as Chat[]);
+      setChats(userChats);
     } catch (error) {
       console.error("Error fetching chats:", error);
     }
@@ -201,7 +204,17 @@ export const CommView = ({ household, currentUserId, inventory = [] }: CommViewP
     }
   };
 
-  const createListing = async (formData: any) => {
+  const createListing = async (formData: {
+    title: string;
+    description: string;
+    condition?: string;
+    mode?: "s-comm" | "b-comm";
+    item_name?: string | null;
+    quantity?: number;
+    unit?: string | null;
+    expiry_date?: string | null;
+    category?: string;
+  }) => {
     if (!currentUserId) {
       setError("User not authenticated. Please sign in to create a listing.");
       return;
@@ -212,10 +225,10 @@ export const CommView = ({ household, currentUserId, inventory = [] }: CommViewP
     setSuccess(null);
     
     try {
-      const chosenMode: "s-comm" | "b-comm" = (formData?.mode ?? activeMode) as any;
+      const chosenMode: "s-comm" | "b-comm" = formData?.mode ?? activeMode;
       
       // Prepare the data for insertion (omit 'category' as it may not exist in the external DB)
-      const listingData: Record<string, any> = {
+      const listingData: Record<string, string | number | null> = {
         title: formData.title,
         description: formData.description,
         condition: formData.condition,
@@ -435,7 +448,7 @@ export const CommView = ({ household, currentUserId, inventory = [] }: CommViewP
           ].map(({ id, label, icon: Icon }) => (
             <button
               key={id}
-              onClick={() => setActiveView(id as any)}
+              onClick={() => setActiveView(id as "browse" | "inventory" | "my-listings" | "requests" | "chat")}
               className={cn(
                 "p-3 rounded-xl transition-all duration-300 flex flex-col items-center gap-1",
                 activeView === id ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground",
@@ -763,7 +776,17 @@ export const CommView = ({ household, currentUserId, inventory = [] }: CommViewP
 };
 
 interface CreateListingFormProps {
-  onSubmit: (data: any) => Promise<void> | void;
+  onSubmit: (data: {
+    title: string;
+    description: string;
+    category: string;
+    condition: string;
+    mode: "s-comm" | "b-comm";
+    item_name: string;
+    quantity: number;
+    unit: string;
+    expiry_date: string;
+  }) => Promise<void> | void;
   onCancel: () => void;
   loading?: boolean;
   categories: string[];

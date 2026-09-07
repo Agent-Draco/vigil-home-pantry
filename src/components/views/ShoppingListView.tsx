@@ -9,7 +9,7 @@ import type { ShoppingListItem } from "@/hooks/useShoppingList";
 
 interface ShoppingListViewProps {
   shoppingList: ShoppingListItem[];
-  onAddItem: (item: { item_name: string; quantity?: number }) => Promise<any>;
+  onAddItem: (item: { item_name: string; quantity?: number }) => Promise<ShoppingListItem | null>;
   onDeleteItem: (id: string) => Promise<boolean>;
   loading?: boolean;
 }

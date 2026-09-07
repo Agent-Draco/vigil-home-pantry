@@ -7,13 +7,23 @@ const { mockFrom, mockRemoveChannel } = vi.hoisted(() => ({
   mockRemoveChannel: vi.fn(),
 }));
 
-let realtimeCallback: ((payload: any) => void) | undefined;
+type RealtimePayload = {
+  eventType?: string;
+  new?: {
+    id?: string;
+    item_name?: string;
+    quantity?: number;
+    household_id?: string;
+  };
+};
+
+let realtimeCallback: ((payload: RealtimePayload) => void) | undefined;
 
 vi.mock("@/integrations/vigil/client", () => ({
   vigilSupabase: {
     from: mockFrom,
     channel: vi.fn(() => ({
-      on: vi.fn((_event: string, _filter: unknown, callback: (payload: any) => void) => {
+      on: vi.fn((_event: string, _filter: unknown, callback: (payload: RealtimePayload) => void) => {
         realtimeCallback = callback;
         return {
           subscribe: vi.fn(),
