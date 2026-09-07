@@ -11,7 +11,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useInventory } from "@/hooks/useInventory";
 import { useShoppingList } from "@/hooks/useShoppingList";
 import { useExpiryNotifications } from "@/hooks/useExpiryNotifications";
-import { quickAddPresets } from "@/components/QuickAddPreset";
 import { Loader2 } from "lucide-react";
 import { vigilSupabase } from "@/integrations/vigil/client";
 
@@ -126,30 +125,6 @@ const Index = () => {
     }
   };
 
-  const handleQuickAdd = async (name: string) => {
-    const preset = quickAddPresets.find(p => p.name === name);
-    const today = new Date();
-    const manufacturingDate = today.toISOString().split('T')[0];
-    let expiryDate: string;
-    const nameLower = name.toLowerCase();
-
-    if (nameLower.includes('milk') || nameLower.includes('cheese') || nameLower.includes('yogurt') || nameLower.includes('butter')) {
-      const expiry = new Date(today); expiry.setDate(today.getDate() + 10); expiryDate = expiry.toISOString().split('T')[0];
-    } else if (nameLower.includes('chicken') || nameLower.includes('salmon') || nameLower.includes('meat')) {
-      const expiry = new Date(today); expiry.setDate(today.getDate() + 4); expiryDate = expiry.toISOString().split('T')[0];
-    } else if (nameLower.includes('bread')) {
-      const expiry = new Date(today); expiry.setDate(today.getDate() + 4); expiryDate = expiry.toISOString().split('T')[0];
-    } else if (nameLower.includes('rice') || nameLower.includes('grains')) {
-      const expiry = new Date(today); expiry.setFullYear(today.getFullYear() + 1); expiryDate = expiry.toISOString().split('T')[0];
-    } else if (nameLower.includes('juice') || nameLower.includes('beverages')) {
-      const expiry = new Date(today); expiry.setDate(today.getDate() + 10); expiryDate = expiry.toISOString().split('T')[0];
-    } else {
-      const expiry = new Date(today); expiry.setDate(today.getDate() + 10); expiryDate = expiry.toISOString().split('T')[0];
-    }
-
-    await addItem({ name, category: preset?.category, manufacturing_date: manufacturingDate, expiry_date: expiryDate });
-  };
-
   const handleAddItem = async (item: {
     name: string; barcode?: string; exp?: string; mfg?: string; item_type?: "food" | "medicine"; category?: string;
     medicine_is_dosaged?: boolean; medicine_dose_amount?: number; medicine_dose_unit?: string;
@@ -221,7 +196,7 @@ const Index = () => {
     switch (activeTab) {
       case "home":
         return (
-          <HomeView inventory={inventory} onItemClick={handleItemClick} onQuickAdd={handleQuickAdd}
+          <HomeView inventory={inventory} onItemClick={handleItemClick}
             shoppingList={shoppingList} onViewShoppingList={() => setActiveTab("shopping")}
             shoppingListLoading={shoppingListLoading} loading={inventoryLoading} />
         );

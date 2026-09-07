@@ -5,9 +5,7 @@ import { Camera, Keyboard, X, Loader2, Check, AlertCircle } from "lucide-react";
 import { GlassCard } from "@/components/GlassCard";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-// Gemini API key for AI image analysis
-const GEMINI_API_KEY = "AIzaSyD5MIrOUgsyRFQg61hGmRf7BEgjYweqWn8";
+import { parseSmartAddText } from "@/lib/smartAddParser";
 
 const CATEGORY_OPTIONS = [
   "Dairy",
@@ -199,70 +197,23 @@ export const ScanView = ({ onAddItem }: ScanViewProps) => {
     return hasVariance && hasReasonableBrightness;
   };
 
-  /**
-   * Send image to Gemini Vision API for analysis
-   * Only call this when content is detected in the frame to preserve API usage
-   */
-  const runGeminiVision = async (base64Image: string): Promise<{
+  const runLocalImageTextScan = async (base64Image: string): Promise<{
     name?: string;
     mfg?: string;
     exp?: string;
-    item_type?: "food" | "medicine";
-    category?: string;
     detected: boolean;
   }> => {
     try {
-      const { GoogleGenerativeAI } = await import("@google/generative-ai");
-      const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-      const prompt = `Analyze this product image and extract information. Return ONLY strict JSON with these keys:
-- name: The product name (string or null if not visible)
-- mfg: Manufacturing date in YYYY-MM-DD format (string or null if not visible)
-- exp: Expiry/Expiration date in YYYY-MM-DD format (string or null if not visible)
-- item_type: Either "food" or "medicine" based on the product (string or null if unclear)
-- category: One of these categories if applicable: ${CATEGORY_OPTIONS.join(", ")} (string or null if not applicable)
-- detected: true if you can clearly see a product/label in the image, false if the image is blank, too blurry, or shows no product
-
-Rules:
-- Only extract information you can clearly see on the product label/packaging
-- If you cannot see a product clearly, set detected to false
-- Dates should be in YYYY-MM-DD format; convert from any other format you see
-- For item_type, choose "medicine" if it appears to be medication, supplements, vitamins, or health products
-- For item_type, choose "food" for food and beverage products
-- Do NOT include dosage information - that will be collected separately from the user
-- If information is not visible or unclear, use null`;
-
-      const result = await model.generateContent([
-        { text: prompt },
-        {
-          inlineData: {
-            mimeType: "image/jpeg",
-            data: base64Image,
-          },
-        },
-      ]);
-
-      const text = result.response.text();
-
-      // Strip code fences if present
-      const cleaned = text
-        .replace(/^```json\s*/i, "")
-        .replace(/^```\s*/i, "")
-        .replace(/```\s*$/i, "")
-        .trim();
-
-      const parsed = JSON.parse(cleaned);
+      const { data } = await import("tesseract.js").then(({ default: tesseract }) => tesseract.recognize(`data:image/jpeg;base64,${base64Image}`, "eng"));
+      const parsed = parseSmartAddText(data.text);
       return {
-        name: typeof parsed?.name === "string" && parsed.name ? parsed.name : undefined,
-        mfg: safeIsoDate(parsed?.mfg),
-        exp: safeIsoDate(parsed?.exp),
-        item_type: parsed?.item_type === "medicine" ? "medicine" : (parsed?.item_type === "food" ? "food" : undefined),
-        category: typeof parsed?.category === "string" && parsed.category ? parsed.category : undefined,
-        detected: parsed?.detected === true,
+        name: parsed.name,
+        mfg: parsed.manufacturingDate,
+        exp: parsed.expiryDate,
+        detected: Boolean(data.text.trim()),
       };
     } catch (error) {
-      console.error("Gemini Vision error:", error);
+      console.error("Local image text scan error:", error);
       return { detected: false };
     }
   };
@@ -304,8 +255,7 @@ Rules:
   }, []);
 
   /**
-   * Run AI photo scan using Gemini Vision
-   * Only sends image to API when content is detected in the frame
+  * Read a product label locally and extract dates with simple patterns.
    */
   const runPhotoOcrOnce = useCallback(async () => {
     if (!videoRef.current || !canvasRef.current) return;
@@ -322,11 +272,10 @@ Rules:
     }
 
     setLoading(true);
-    setScanStatus("Analyzing with AI...");
+    setScanStatus("Reading label locally...");
 
     try {
-      // Use Gemini Vision to analyze the image
-      const result = await runGeminiVision(base64Image);
+      const result = await runLocalImageTextScan(base64Image);
 
       if (!result.detected) {
         setScanStatus("No product detected. Try again.");
@@ -338,17 +287,6 @@ Rules:
 
       if (!manualName.trim() && result.name?.trim()) {
         setManualName(result.name.trim());
-      }
-
-      if (result.item_type && result.item_type !== manualItemType) {
-        setManualItemType(result.item_type);
-        if (result.item_type === "food") {
-          setManualMedicineIsDosaged(false);
-        }
-      }
-
-      if (result.category?.trim()) {
-        setManualCategory(result.category.trim());
       }
 
       if (result.mfg) {
@@ -367,7 +305,7 @@ Rules:
 
       setScanStatus("Product detected! Review and add.");
     } catch (err) {
-      console.error("AI Photo scan failed:", err);
+      console.error("Photo text scan failed:", err);
       setScanStatus("Scan failed. Please try again.");
     } finally {
       setLoading(false);
@@ -375,8 +313,7 @@ Rules:
   }, [manualName, manualItemType, checkFrameHasContent]);
 
   /**
-   * Run CV scan using Gemini Vision
-   * Only sends image to API when content is detected in the frame
+  * Read a camera frame locally and extract visible label text.
    */
   const runCvScanOcrOnce = useCallback(async () => {
     if (!videoRef.current || !canvasRef.current) return;
@@ -393,11 +330,10 @@ Rules:
     }
 
     setLoading(true);
-    setScanStatus("Analyzing with AI...");
+    setScanStatus("Reading label locally...");
 
     try {
-      // Use Gemini Vision to analyze the image
-      const result = await runGeminiVision(base64Image);
+      const result = await runLocalImageTextScan(base64Image);
 
       if (!result.detected) {
         setScanStatus("No product detected. Try again.");
@@ -409,17 +345,6 @@ Rules:
 
       if (!manualName.trim() && result.name?.trim()) {
         setManualName(result.name.trim());
-      }
-
-      if (result.item_type && result.item_type !== manualItemType) {
-        setManualItemType(result.item_type);
-        if (result.item_type === "food") {
-          setManualMedicineIsDosaged(false);
-        }
-      }
-
-      if (result.category?.trim()) {
-        setManualCategory(result.category.trim());
       }
 
       if (result.mfg) {
@@ -705,7 +630,7 @@ Rules:
                   <Camera className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground">AI Photo Scan</h3>
+                  <h3 className="font-semibold text-foreground">Photo Text Scan</h3>
                   <p className="text-sm text-muted-foreground">Extracts name, dates, and category</p>
                 </div>
               </GlassCard>
@@ -719,7 +644,7 @@ Rules:
                 </div>
                 <div>
                   <h3 className="font-semibold text-foreground">CV Scan</h3>
-                  <p className="text-sm text-muted-foreground">AI object identification & date extraction</p>
+                  <p className="text-sm text-muted-foreground">Local label reading & date extraction</p>
                 </div>
               </GlassCard>
             </div>
@@ -990,7 +915,7 @@ Rules:
                     id="photoName"
                     value={manualName}
                     onChange={(e) => setManualName(e.target.value)}
-                    placeholder="AI will detect the name"
+                    placeholder="Text scan can suggest a name"
                   />
                 </div>
 
@@ -1274,7 +1199,7 @@ Rules:
                       id="cvScanName"
                       value={manualName}
                       onChange={(e) => setManualName(e.target.value)}
-                      placeholder="AI will detect the name"
+                      placeholder="Text scan can suggest a name"
                       required
                     />
                   </div>

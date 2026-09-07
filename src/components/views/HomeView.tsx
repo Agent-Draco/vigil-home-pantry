@@ -9,11 +9,13 @@ import { RecipeDrawer } from "@/components/RecipeDrawer";
 import { AnimatePresence } from "framer-motion";
 import type { InventoryItem as InventoryItemType } from "@/hooks/useInventory";
 import type { ShoppingListItem } from "@/hooks/useShoppingList";
+import { QuickAddFlow } from "@/components/QuickAddFlow";
+import type { QuickAddPresetData } from "@/components/QuickAddPreset";
+import type { SmartAddDraft } from "@/lib/smartAddParser";
 
 interface HomeViewProps {
   inventory: InventoryItemType[];
   onItemClick: (id: string) => void;
-  onQuickAdd: (name: string) => void;
   shoppingList?: ShoppingListItem[];
   onViewShoppingList?: () => void;
   shoppingListLoading?: boolean;
@@ -27,12 +29,15 @@ export const HomeView = ({
   shoppingList = [],
   onViewShoppingList,
   shoppingListLoading,
-  loading 
+  loading
 }: HomeViewProps) => {
   const [isRecipeOpen, setIsRecipeOpen] = useState(false);
   const [recipeIngredient, setRecipeIngredient] = useState("");
+  const [quickAddPreset, setQuickAddPreset] = useState<QuickAddPresetData | null>(null);
+  const [mockItems, setMockItems] = useState<InventoryItemType[]>([]);
+  const visibleInventory = [...mockItems, ...inventory];
 
-  const expiringCount = inventory.filter((item) => {
+  const expiringCount = visibleInventory.filter((item) => {
     if (!item.expiry_date) return false;
     const days = Math.ceil(
       (new Date(item.expiry_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
@@ -40,8 +45,18 @@ export const HomeView = ({
     return days <= 3 && days > 0;
   }).length;
 
-  const inStockCount = inventory.filter(item => !item.is_out).length;
-  const outOfStockCount = inventory.filter(item => item.is_out).length;
+  const inStockCount = visibleInventory.filter(item => !item.is_out).length;
+  const outOfStockCount = visibleInventory.filter(item => item.is_out).length;
+
+  const handleMockAdd = (draft: SmartAddDraft) => {
+    const now = new Date().toISOString();
+    setMockItems((items) => [{
+      id: `mock-${Date.now()}`, name: draft.name, quantity: 1, unit: "pcs", category: draft.category,
+      barcode: null, expiry_date: draft.expiryDate || null, mfg_date: draft.manufacturingDate || null,
+      is_out: false, added_by: null, created_at: now, updated_at: now, household_id: "mock",
+    }, ...items]);
+    setQuickAddPreset(null);
+  };
 
   return (
     <>
@@ -103,7 +118,10 @@ export const HomeView = ({
               <QuickAddPreset
                 name={preset.name}
                 emoji={preset.emoji}
-                onClick={() => onQuickAdd(preset.name)}
+                onClick={() => {
+                  setQuickAddPreset(preset);
+                  onQuickAdd?.(preset);
+                }}
                 delay={0.3 + i * 0.05}
               />
             </div>
@@ -132,7 +150,7 @@ export const HomeView = ({
             Recent Items
           </h2>
           <span className="text-xs text-muted-foreground">
-            {inventory.length} items
+            {visibleInventory.length} items
           </span>
         </motion.div>
         
@@ -143,7 +161,7 @@ export const HomeView = ({
         ) : (
           <div className="space-y-3">
             <AnimatePresence>
-              {inventory.slice(0, 5).map((item, i) => (
+              {visibleInventory.slice(0, 5).map((item, i) => (
                 <div key={item.id}>
                   <InventoryItem
                     name={item.name}
@@ -172,6 +190,7 @@ export const HomeView = ({
         onClose={() => setIsRecipeOpen(false)}
         ingredient={recipeIngredient}
       />
+      <QuickAddFlow preset={quickAddPreset} onClose={() => setQuickAddPreset(null)} onAdd={handleMockAdd} />
     </>
   );
 };
