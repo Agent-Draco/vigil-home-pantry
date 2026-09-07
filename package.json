@@ -15,8 +15,6 @@
   "dependencies": {
     "@ai-sdk/openai-compatible": "^3.0.44",
     "@fontsource/inter": "^5.2.8",
-    "@google-cloud/vision": "^4.3.2",
-    "@google/generative-ai": "^0.16.0",
     "@hookform/resolvers": "^3.10.0",
     "@lovable.dev/cloud-auth-js": "^0.0.2",
     "@lovable.dev/mcp-js": "^0.28.0",
